@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frontend Flow Demo - Mastercard BIN Lookup</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        
+        .demo-section {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin: 24px 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .demo-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 32px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        
+        .flow-step {
+            background: #f8f9fa;
+            border-left: 4px solid #ff5f00;
+            padding: 16px 20px;
+            margin: 16px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .code-block {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            margin: 16px 0;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 24px 0;
+        }
+        
+        .feature-card {
+            background: linear-gradient(135deg, #ff5f00 0%, #eb001b 100%);
+            color: white;
+            padding: 24px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        
+        .feature-card h3 {
+            margin: 0 0 12px 0;
+            font-size: 1.2em;
+        }
+        
+        .mockup {
+            border: 2px solid #ddd;
+            border-radius: 12px;
+            padding: 20px;
+            background: white;
+            margin: 20px 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        .mockup-navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+        }
+        
+        .mockup-brand {
+            font-weight: bold;
+            color: #eb001b;
+            font-size: 1.2em;
+        }
+        
+        .mockup-form {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .mockup-input {
+            width: 70%;
+            padding: 12px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+        
+        .mockup-button {
+            background: linear-gradient(45deg, #eb001b, #ff5f00);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 12px 30px;
+            font-weight: 600;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+        
+        .mockup-samples {
+            margin-top: 20px;
+        }
+        
+        .mockup-sample-btn {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 20px;
+            padding: 6px 16px;
+            margin: 4px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        
+        .mockup-result {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-top: 20px;
+        }
+        
+        .mockup-result-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .mockup-result-item {
+            display: flex;
+            align-items: center;
+        }
+        
+        .mockup-result-icon {
+            margin-right: 12px;
+            font-size: 1.2em;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-header">
+        <h1>🎨 Frontend Flow Demonstration</h1>
+        <p>Mastercard BIN Lookup Application - User Interface Overview</p>
+    </div>
+
+    <div class="demo-section">
+        <h2>🌊 Complete User Flow</h2>
+        
+        <div class="flow-step">
+            <h3>Step 1: Landing Page</h3>
+            <p>User arrives at a beautiful, modern interface with clear call-to-action</p>
+        </div>
+        
+        <div class="mockup">
+            <div class="mockup-navbar">
+                <span class="mockup-brand">🏦 BIN Lookup</span>
+            </div>
+            
+            <div class="mockup-form">
+                <h2 style="text-align: center; margin-bottom: 20px;">
+                    💳 BIN Lookup
+                </h2>
+                <p style="text-align: center; color: #666; margin-bottom: 30px;">
+                    Enter a Bank Identification Number (BIN) to get detailed card information
+                </p>
+                
+                <div style="text-align: center;">
+                    <input type="text" class="mockup-input" placeholder="Enter 6-8 digit BIN number (e.g., 545454)" value="">
+                    <button class="mockup-button">🔍 Lookup BIN</button>
+                </div>
+                
+                <div class="mockup-samples">
+                    <p style="margin-bottom: 12px;"><strong>💡 Try these sample BIN numbers:</strong></p>
+                    <button class="mockup-sample-btn">545454</button>
+                    <button class="mockup-sample-btn">515555</button>
+                    <button class="mockup-sample-btn">555555</button>
+                    <button class="mockup-sample-btn">424242</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="flow-step">
+            <h3>Step 2: Real-time Validation</h3>
+            <p>As the user types, the input is validated in real-time with visual feedback</p>
+        </div>
+
+        <div class="code-block">
+// Real-time validation JavaScript
+document.getElementById('binNumber').addEventListener('input', function(e) {
+    // Only allow digits
+    this.value = this.value.replace(/[^0-9]/g, '');
+    
+    // Visual feedback
+    if (this.value.length >= 6) {
+        this.classList.remove('is-invalid');
+        this.classList.add('is-valid');  // ✅ Green border
+    } else {
+        this.classList.remove('is-valid');
+        if (this.value.length > 0) {
+            this.classList.add('is-invalid');  // ❌ Red border
+        }
+    }
+});
+        </div>
+
+        <div class="flow-step">
+            <h3>Step 3: API Request & Loading State</h3>
+            <p>Elegant loading overlay appears while the API request is processed</p>
+        </div>
+
+        <div style="background: rgba(0,0,0,0.5); color: white; padding: 40px; border-radius: 12px; text-align: center; margin: 20px 0;">
+            <div style="font-size: 48px; margin-bottom: 20px;">⏳</div>
+            <h3>Processing request...</h3>
+            <p>Fetching BIN information from Mastercard API</p>
+        </div>
+
+        <div class="flow-step">
+            <h3>Step 4: Results Display</h3>
+            <p>Beautiful, organized display of BIN information with expandable raw data</p>
+        </div>
+
+        <div class="mockup-result">
+            <h3 style="margin: 0 0 20px 0;">📊 BIN Information for 5454 5454</h3>
+            
+            <div class="mockup-result-grid">
+                <div class="mockup-result-item">
+                    <span class="mockup-result-icon">🏦</span>
+                    <div>
+                        <small>Issuer</small><br>
+                        <strong>Chase Bank</strong>
+                    </div>
+                </div>
+                <div class="mockup-result-item">
+                    <span class="mockup-result-icon">🌍</span>
+                    <div>
+                        <small>Country</small><br>
+                        <strong>US</strong>
+                    </div>
+                </div>
+                <div class="mockup-result-item">
+                    <span class="mockup-result-icon">💳</span>
+                    <div>
+                        <small>Product Type</small><br>
+                        <strong>CREDIT</strong>
+                    </div>
+                </div>
+                <div class="mockup-result-item">
+                    <span class="mockup-result-icon">🏷️</span>
+                    <div>
+                        <small>Card Type</small><br>
+                        <strong>MASTERCARD</strong>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="margin-top: 24px; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.2);">
+                <button style="background: rgba(255,255,255,0.2); color: white; border: none; padding: 8px 16px; border-radius: 20px; cursor: pointer;">
+                    🔍 Show Raw Data
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="demo-section">
+        <h2>🎨 Key Visual Features</h2>
+        
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h3>🌈 Modern Design</h3>
+                <p>Glass-morphism effects, gradient backgrounds, and smooth animations</p>
+            </div>
+            <div class="feature-card">
+                <h3>📱 Mobile Responsive</h3>
+                <p>Optimized for all screen sizes with touch-friendly interactions</p>
+            </div>
+            <div class="feature-card">
+                <h3>⚡ Real-time Feedback</h3>
+                <p>Instant validation and visual cues guide user interactions</p>
+            </div>
+            <div class="feature-card">
+                <h3>🔒 Secure & Reliable</h3>
+                <p>Professional error handling and secure API communication</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="demo-section">
+        <h2>🎯 Interactive Elements</h2>
+        
+        <h3>Button Hover Effects</h3>
+        <div class="code-block">
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(235, 0, 27, 0.4);
+    background: linear-gradient(45deg, #ff5f00, #eb001b);
+}
+        </div>
+
+        <h3>Card Animations</h3>
+        <div class="code-block">
+.card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+}
+        </div>
+
+        <h3>Form Validation States</h3>
+        <div class="code-block">
+.form-control:focus {
+    border-color: #ff5f00;
+    box-shadow: 0 0 0 0.2rem rgba(255, 95, 0, 0.25);
+}
+
+.form-control.is-valid {
+    border-color: #28a745;
+}
+
+.form-control.is-invalid {
+    border-color: #dc3545;
+}
+        </div>
+    </div>
+
+    <div class="demo-section">
+        <h2>📋 Additional Features</h2>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+            <div>
+                <h3>🔍 Advanced Search</h3>
+                <ul>
+                    <li>Search by issuer name</li>
+                    <li>Filter by country code</li>
+                    <li>Filter by product type</li>
+                    <li>Paginated results</li>
+                </ul>
+            </div>
+            
+            <div>
+                <h3>📊 Account Ranges</h3>
+                <ul>
+                    <li>Browse all available ranges</li>
+                    <li>Sortable table interface</li>
+                    <li>Pagination controls</li>
+                    <li>Export capabilities</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="demo-section">
+        <h2>🚀 Technical Highlights</h2>
+        
+        <div class="flow-step">
+            <h3>Progressive Enhancement</h3>
+            <p>Works without JavaScript, enhanced with modern features when available</p>
+        </div>
+        
+        <div class="flow-step">
+            <h3>Accessibility First</h3>
+            <p>WCAG compliant with proper ARIA labels, keyboard navigation, and screen reader support</p>
+        </div>
+        
+        <div class="flow-step">
+            <h3>Performance Optimized</h3>
+            <p>Minimal JavaScript bundle, CDN resources, lazy loading, and optimized assets</p>
+        </div>
+        
+        <div class="flow-step">
+            <h3>Error Handling</h3>
+            <p>Graceful error states with helpful messages and recovery suggestions</p>
+        </div>
+    </div>
+
+    <div class="demo-section" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+        <h2>🎉 Ready to Experience It Live?</h2>
+        <p style="font-size: 1.1em; margin-bottom: 24px;">
+            The actual application is running and ready for you to explore! 
+        </p>
+        <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 12px;">
+            <h3>🚀 Quick Start:</h3>
+            <ol>
+                <li>Configure your Mastercard API credentials in the <code>.env</code> file</li>
+                <li>Run <code>python app.py</code> to start the server</li>
+                <li>Open <code>http://localhost:5000</code> in your browser</li>
+                <li>Try the sample BIN numbers: 545454, 515555, 555555</li>
+            </ol>
+        </div>
+    </div>
+</body>
+</html>
