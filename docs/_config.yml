@@ -1,0 +1,32 @@
+# GitHub Pages Configuration
+title: "Mastercard BIN Lookup Demo"
+description: "A beautiful, responsive web application for BIN lookup operations"
+author: "Your Name"
+url: "https://yourusername.github.io"
+baseurl: "/BIN-Lookup"
+
+# Theme
+theme: minima
+
+# Plugins
+plugins:
+  - jekyll-feed
+  - jekyll-sitemap
+
+# Exclude files
+exclude:
+  - README.md
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor
+
+# Include files
+include:
+  - _pages
+
+# Collections
+collections:
+  pages:
+    output: true
+    permalink: /:name/
