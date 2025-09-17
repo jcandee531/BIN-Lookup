@@ -1,5 +1,5 @@
 export type Participant = { id: number; name: string };
-export type Game = { id: number; date: string; opponent: string; home: number; status: string; season: string };
+export type Game = { id: number; date: string; opponent: string; home: number; status: string; season: string; double_points?: number };
 export type Pick = { id: number; game_id: number; participant_id: number; player_id: number; player_name: string };
 export type Standing = { id: number; name: string; points: number };
 export type RosterPlayer = { id: number; name: string; position: string };

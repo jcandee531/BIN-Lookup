@@ -40,6 +40,7 @@ export default function Schedule() {
             <th>Opponent</th>
             <th>Home/Away</th>
             <th>Status</th>
+            <th>Double</th>
           </tr>
         </thead>
         <tbody>
@@ -49,6 +50,7 @@ export default function Schedule() {
               <td>{g.opponent}</td>
               <td>{g.home ? 'Home' : 'Away'}</td>
               <td>{g.status}</td>
+              <td>{g.double_points ? '2x' : ''}</td>
             </tr>
           ))}
         </tbody>

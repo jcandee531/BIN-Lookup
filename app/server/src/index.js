@@ -50,7 +50,7 @@ app.post('/api/games/import', async (req, res) => {
   const { season } = parse.data;
   try {
     const schedule = await fetchSeasonSchedule(season);
-    const insert = db.prepare("INSERT OR IGNORE INTO games (id, date, opponent, home, status, season) VALUES (?, ?, ?, ?, ?, ?)\n");
+    const insert = db.prepare("INSERT OR IGNORE INTO games (id, date, opponent, home, status, season, double_points) VALUES (?, ?, ?, ?, ?, ?, 0)\n");
     const update = db.prepare("UPDATE games SET date=?, opponent=?, home=?, status=?, season=? WHERE id=?");
     const txn = db.transaction(() => {
       for (const g of schedule) {
@@ -63,6 +63,23 @@ app.post('/api/games/import', async (req, res) => {
       }
     });
     txn();
+
+    // Mark 5 random games as double-points per season, if not already set
+    const seasonGames = db.prepare("SELECT id FROM games WHERE season=? ORDER BY date").all(season).map(r => r.id);
+    const already = db.prepare("SELECT COUNT(1) as c FROM games WHERE season=? AND double_points=1").get(season).c;
+    if (seasonGames.length >= 5 && already < 5) {
+      // Choose deterministic random subset using season seed for stability
+      const seed = Number(season);
+      let rng = mulberry32(seed);
+      const picks = new Set();
+      while (picks.size < 5) {
+        const idx = Math.floor(rng() * seasonGames.length);
+        picks.add(seasonGames[idx]);
+      }
+      const mark = db.prepare("UPDATE games SET double_points=1 WHERE id=?");
+      const txn2 = db.transaction(() => { for (const id of picks) mark.run(id); });
+      txn2();
+    }
     res.json({ imported: schedule.length });
   } catch (e) {
     res.status(500).json({ error: e.message });
@@ -166,6 +183,8 @@ app.post('/api/games/:gameId/compute', async (req, res) => {
     );
 
     // Award points
+    const isDouble = !!db.prepare("SELECT double_points FROM games WHERE id=?").get(gameId)?.double_points;
+    const multiplier = isDouble ? 2 : 1;
     const picks = db.prepare("SELECT * FROM picks WHERE game_id=?").all(gameId);
     const award = db.prepare("UPDATE standings SET points = points + ? WHERE participant_id=?");
     for (const pick of picks) {
@@ -173,10 +192,10 @@ app.post('/api/games/:gameId/compute', async (req, res) => {
       let add = 0;
       if (firstGoal && pick.player_id === firstGoal.player_id) {
         // 3 for first goal, plus 1 for each additional goal beyond the first
-        add = 3 + Math.max(0, goals - 1);
+        add = (3 + Math.max(0, goals - 1)) * multiplier;
         db.prepare("UPDATE standings SET last_correct_first_scorer_game_id=? WHERE participant_id=?").run(gameId, pick.participant_id);
       } else {
-        add = goals; // 1 per goal if not first scorer
+        add = goals * multiplier; // 1 per goal if not first scorer
       }
       if (add > 0) award.run(add, pick.participant_id);
     }
@@ -192,6 +211,16 @@ app.post('/api/games/:gameId/compute', async (req, res) => {
     res.status(500).json({ error: e.message });
   }
 });
+
+// PRNG for deterministic selection
+function mulberry32(a) {
+  return function() {
+    var t = a += 0x6D2B79F5;
+    t = Math.imul(t ^ t >>> 15, t | 1);
+    t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  }
+}
 
 app.get('/api/games/:gameId/roster', async (req, res) => {
   const gameId = Number(req.params.gameId);

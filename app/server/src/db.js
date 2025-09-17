@@ -50,3 +50,14 @@ CREATE TABLE IF NOT EXISTS standings (
 
 module.exports = db;
 
+// Lightweight migration: add double_points column to games if missing
+try {
+  const cols = db.prepare("PRAGMA table_info(games)").all();
+  const hasDouble = cols.some(c => c.name === 'double_points');
+  if (!hasDouble) {
+    db.exec("ALTER TABLE games ADD COLUMN double_points INTEGER NOT NULL DEFAULT 0");
+  }
+} catch (e) {
+  // ignore
+}
+

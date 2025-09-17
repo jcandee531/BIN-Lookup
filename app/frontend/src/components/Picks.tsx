@@ -94,7 +94,7 @@ export default function Picks() {
       {!upcoming && <div>No upcoming game scheduled. Import schedule first.</div>}
       {upcoming && (
         <div style={{ marginBottom: 12 }}>
-          <div>{new Date(upcoming.date).toLocaleString()} vs {upcoming.opponent} ({upcoming.home ? 'Home' : 'Away'})</div>
+          <div>{new Date(upcoming.date).toLocaleString()} vs {upcoming.opponent} ({upcoming.home ? 'Home' : 'Away'}) {upcoming.double_points ? '— DOUBLE POINTS' : ''}</div>
           <Countdown dateIso={upcoming.date} nowMs={nowMs} />
           <button onClick={async ()=>{ if (upcoming) { try { await api.computeGame(upcoming.id); alert('Computed. Refresh standings.'); } catch(e:any){ alert(e.message); } } }}>
             Compute Results (admin)
