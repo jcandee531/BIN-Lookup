@@ -8,6 +8,7 @@ export default function Picks() {
   const [roster, setRoster] = useState<RosterPlayer[]>([]);
   const [picks, setPicks] = useState<Pick[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [rosterLoading, setRosterLoading] = useState(false);
 
   const refreshAll = async () => {
     setError(null);
@@ -38,6 +39,19 @@ export default function Picks() {
     }
   };
 
+  const refreshRoster = async () => {
+    if (!upcoming) return;
+    setRosterLoading(true);
+    try {
+      const r = await api.getRoster(upcoming.id);
+      setRoster(r);
+    } catch (e:any) {
+      setError(e.message);
+    } finally {
+      setRosterLoading(false);
+    }
+  };
+
   return (
     <div>
       <h2>Upcoming Game</h2>
@@ -47,6 +61,9 @@ export default function Picks() {
           <div>{new Date(upcoming.date).toLocaleString()} vs {upcoming.opponent} ({upcoming.home ? 'Home' : 'Away'})</div>
           <button onClick={async ()=>{ if (upcoming) { try { await api.computeGame(upcoming.id); alert('Computed. Refresh standings.'); } catch(e:any){ alert(e.message); } } }}>
             Compute Results (admin)
+          </button>
+          <button style={{ marginLeft: 8 }} disabled={!upcoming || rosterLoading} onClick={refreshRoster}>
+            {rosterLoading ? 'Refreshing roster...' : 'Refresh roster'}
           </button>
         </div>
       )}
@@ -63,6 +80,7 @@ export default function Picks() {
           </div>
           <div>
             <h3>Make Picks</h3>
+            <div style={{ marginBottom: 8, color:'#555' }}>Roster players: {roster.length}</div>
             {draftOrder.map(pid => (
               <ParticipantPickRow key={pid}
                 participant={participantById[pid]}
