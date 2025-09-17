@@ -1,0 +1,109 @@
+import { useEffect, useMemo, useState } from 'react';
+import { api, Game, Participant, Pick, RosterPlayer } from '@api/client';
+
+export default function Picks() {
+  const [upcoming, setUpcoming] = useState<Game | null>(null);
+  const [participants, setParticipants] = useState<Participant[]>([]);
+  const [draftOrder, setDraftOrder] = useState<number[]>([]);
+  const [roster, setRoster] = useState<RosterPlayer[]>([]);
+  const [picks, setPicks] = useState<Pick[]>([]);
+  const [error, setError] = useState<string | null>(null);
+
+  const refreshAll = async () => {
+    setError(null);
+    const g = await api.getUpcomingGame();
+    setUpcoming(g);
+    setParticipants(await api.listParticipants());
+    if (g) {
+      setDraftOrder(await api.getDraftOrder(g.id));
+      try { setRoster(await api.getRoster(g.id)); } catch { setRoster([]); }
+      setPicks(await api.listPicks(g.id));
+    } else {
+      setDraftOrder([]); setRoster([]); setPicks([]);
+    }
+  };
+
+  useEffect(() => { refreshAll(); }, []);
+
+  const participantById = useMemo(() => Object.fromEntries(participants.map(p => [p.id, p])), [participants]);
+
+  const submitPick = async (participantId: number, playerId: number, playerName: string) => {
+    if (!upcoming) return;
+    setError(null);
+    try {
+      await api.createPick(upcoming.id, participantId, playerId, playerName);
+      setPicks(await api.listPicks(upcoming.id));
+    } catch (e:any) {
+      setError(e.message);
+    }
+  };
+
+  return (
+    <div>
+      <h2>Upcoming Game</h2>
+      {!upcoming && <div>No upcoming game scheduled. Import schedule first.</div>}
+      {upcoming && (
+        <div style={{ marginBottom: 12 }}>
+          <div>{new Date(upcoming.date).toLocaleString()} vs {upcoming.opponent} ({upcoming.home ? 'Home' : 'Away'})</div>
+          <button onClick={async ()=>{ if (upcoming) { try { await api.computeGame(upcoming.id); alert('Computed. Refresh standings.'); } catch(e:any){ alert(e.message); } } }}>
+            Compute Results (admin)
+          </button>
+        </div>
+      )}
+      {error && <div style={{ color: 'red' }}>{error}</div>}
+      {upcoming && (
+        <div style={{ display:'grid', gap:16 }}>
+          <div>
+            <h3>Draft Order</h3>
+            <ol>
+              {draftOrder.map(id => (
+                <li key={id}>{participantById[id]?.name ?? `Participant ${id}`}</li>
+              ))}
+            </ol>
+          </div>
+          <div>
+            <h3>Make Picks</h3>
+            {draftOrder.map(pid => (
+              <ParticipantPickRow key={pid}
+                participant={participantById[pid]}
+                roster={roster}
+                picks={picks.filter(p => p.participant_id === pid)}
+                onPick={(playerId, playerName) => submitPick(pid, playerId, playerName)}
+              />
+            ))}
+          </div>
+          <div>
+            <h3>Current Picks</h3>
+            <ul>
+              {picks.map(p => (
+                <li key={p.id}>{participantById[p.participant_id]?.name}: {p.player_name}</li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ParticipantPickRow({ participant, roster, picks, onPick }:{ participant: Participant, roster: RosterPlayer[], picks: Pick[], onPick: (playerId:number, playerName:string)=>void }) {
+  const [selected, setSelected] = useState<number | ''>('');
+  const picked = picks.length > 0;
+  return (
+    <div style={{ display:'flex', gap:8, alignItems:'center', marginBottom:8 }}>
+      <strong style={{ width: 160 }}>{participant.name}</strong>
+      <select disabled={picked} value={selected} onChange={e=>setSelected(Number(e.target.value))}>
+        <option value="">Select player</option>
+        {roster.map(r => (
+          <option key={r.id} value={r.id}>{r.name} {r.position ? `(${r.position})` : ''}</option>
+        ))}
+      </select>
+      <button disabled={picked || !selected} onClick={() => {
+        const r = roster.find(r => r.id === selected);
+        if (r) onPick(r.id, r.name);
+      }}>Pick</button>
+      {picked && <span>Picked: {picks[0].player_name}</span>}
+    </div>
+  );
+}
+
