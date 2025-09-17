@@ -52,6 +52,35 @@ export default function Picks() {
     }
   };
 
+  // Auto-refresh roster starting 1 hour before puck drop, until puck drop
+  useEffect(() => {
+    if (!upcoming) return;
+    const startTimeMs = new Date(upcoming.date).getTime();
+    const now = Date.now();
+    const windowStart = startTimeMs - 60 * 60 * 1000; // 1 hour prior
+    const delayToStart = Math.max(0, windowStart - now);
+    const delayToStop = Math.max(0, startTimeMs - now);
+
+    let startTimer: number | undefined;
+    let stopTimer: number | undefined;
+    let pollId: number | undefined;
+
+    const begin = async () => {
+      await refreshRoster();
+      pollId = window.setInterval(refreshRoster, 2 * 60 * 1000); // every 2 minutes
+    };
+
+    if (delayToStart === 0) begin(); else startTimer = window.setTimeout(begin, delayToStart);
+    // Stop polling a few seconds after scheduled start time
+    stopTimer = window.setTimeout(() => { if (pollId) window.clearInterval(pollId); }, delayToStop + 5000);
+
+    return () => {
+      if (startTimer) window.clearTimeout(startTimer);
+      if (stopTimer) window.clearTimeout(stopTimer);
+      if (pollId) window.clearInterval(pollId);
+    };
+  }, [upcoming?.id, upcoming?.date]);
+
   return (
     <div>
       <h2>Upcoming Game</h2>
