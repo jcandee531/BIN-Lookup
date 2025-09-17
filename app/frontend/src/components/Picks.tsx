@@ -9,6 +9,7 @@ export default function Picks() {
   const [picks, setPicks] = useState<Pick[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [rosterLoading, setRosterLoading] = useState(false);
+  const [nowMs, setNowMs] = useState<number>(Date.now());
 
   const refreshAll = async () => {
     setError(null);
@@ -25,6 +26,12 @@ export default function Picks() {
   };
 
   useEffect(() => { refreshAll(); }, []);
+
+  // Ticker for countdown UI
+  useEffect(() => {
+    const id = window.setInterval(() => setNowMs(Date.now()), 1000);
+    return () => window.clearInterval(id);
+  }, []);
 
   const participantById = useMemo(() => Object.fromEntries(participants.map(p => [p.id, p])), [participants]);
 
@@ -88,6 +95,7 @@ export default function Picks() {
       {upcoming && (
         <div style={{ marginBottom: 12 }}>
           <div>{new Date(upcoming.date).toLocaleString()} vs {upcoming.opponent} ({upcoming.home ? 'Home' : 'Away'})</div>
+          <Countdown dateIso={upcoming.date} nowMs={nowMs} />
           <button onClick={async ()=>{ if (upcoming) { try { await api.computeGame(upcoming.id); alert('Computed. Refresh standings.'); } catch(e:any){ alert(e.message); } } }}>
             Compute Results (admin)
           </button>
@@ -150,6 +158,22 @@ function ParticipantPickRow({ participant, roster, picks, onPick }:{ participant
         if (r) onPick(r.id, r.name);
       }}>Pick</button>
       {picked && <span>Picked: {picks[0].player_name}</span>}
+    </div>
+  );
+}
+
+function Countdown({ dateIso, nowMs }:{ dateIso: string; nowMs: number }) {
+  const startMs = new Date(dateIso).getTime();
+  const diff = startMs - nowMs;
+  const abs = Math.abs(diff);
+  const hours = Math.floor(abs / (1000*60*60));
+  const minutes = Math.floor((abs % (1000*60*60)) / (1000*60));
+  const seconds = Math.floor((abs % (1000*60)) / 1000);
+  const pad = (n:number) => n.toString().padStart(2,'0');
+  const text = `${hours}:${pad(minutes)}:${pad(seconds)}`;
+  return (
+    <div style={{ margin: '6px 0', color: '#444' }}>
+      {diff > 0 ? `Puck drop in ${text}` : `Game started ${text} ago`}
     </div>
   );
 }
