@@ -140,6 +140,12 @@ app.post('/api/picks', (req, res) => {
     }
   }
 
+  // Lock: if already picked for this game, disallow new pick
+  const existing = db.prepare("SELECT 1 FROM picks WHERE game_id=? AND participant_id=?").get(gameId, participantId);
+  if (existing) {
+    return res.status(400).json({ error: 'Pick already submitted for this game' });
+  }
+
   try {
     const info = db.prepare("INSERT INTO picks (game_id, participant_id, player_id, player_name) VALUES (?, ?, ?, ?)").run(gameId, participantId, playerId, playerName);
     db.prepare("INSERT OR IGNORE INTO standings (participant_id, points) VALUES (?, 0)").run(participantId);

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { api, Game, Participant, Pick, RosterPlayer } from '@api/client';
+import { api, type Game, type Participant, type Pick, type RosterPlayer } from '@api/client';
 
 export default function Picks() {
   const [upcoming, setUpcoming] = useState<Game | null>(null);
@@ -157,7 +157,7 @@ function ParticipantPickRow({ participant, roster, picks, onPick }:{ participant
         const r = roster.find(r => r.id === selected);
         if (r) onPick(r.id, r.name);
       }}>Pick</button>
-      {picked && <span>Picked: {picks[0].player_name}</span>}
+      {picked && <span>Locked: {picks[0].player_name}</span>}
     </div>
   );
 }
