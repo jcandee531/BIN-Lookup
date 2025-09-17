@@ -48,3 +48,11 @@ Scripts
 - `npm --prefix server run dev` — backend only
 - `npm --prefix frontend run dev` — frontend only
 
+Deployment (Render)
+1. Commit this repo to GitHub
+2. On Render, create Web Service from `server/` (Node 18). Start command: `node src/index.js`
+3. On Render, create Static Site from `frontend/` with build command `npm install && npm run build` and publish directory `dist`
+4. Set the Static Site env var `VITE_API_BASE` to the API’s external URL (Render provides `RENDER_EXTERNAL_URL`)
+   - If using `render.yaml`, just connect the repo and “Blueprint” deploy; it wires `VITE_API_BASE` automatically
+5. After deploy, visit the frontend URL
+
