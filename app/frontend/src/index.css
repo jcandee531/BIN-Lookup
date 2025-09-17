@@ -1,0 +1,50 @@
+:root {
+  --rangers-blue: #0038a8;
+  --rangers-red: #ce1126;
+  --rangers-white: #ffffff;
+
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color: var(--rangers-blue);
+  background-color: var(--rangers-white);
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a { color: var(--rangers-blue); text-decoration: inherit; }
+a:hover { color: var(--rangers-red); }
+
+body { margin: 0; min-width: 320px; min-height: 100vh; display: flex; align-items: flex-start; justify-content: center; }
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: url('https://share.google/IEBIdJCEAeB09bxoO'), url('/msg-panorama.jpg');
+  background-position: center center, center center;
+  background-repeat: no-repeat, no-repeat;
+  background-attachment: fixed, fixed;
+  background-size: cover, cover;
+  filter: brightness(0.35);
+  z-index: -1;
+}
+.content { backdrop-filter: blur(2px); }
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+button { border-radius: 8px; border: 2px solid var(--rangers-blue); padding: 0.5em 1em; font-size: 1em; font-weight: 600; color: var(--rangers-white); background-color: var(--rangers-blue); cursor: pointer; }
+button:hover { border-color: var(--rangers-red); background-color: var(--rangers-red); }
+button:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.site-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid var(--rangers-blue); }
+.site-header h1 { margin: 0; color: var(--rangers-blue); }
+.rangers-logo { height: 56px; width: auto; }
+.tab-nav { display: flex; gap: 8px; margin-bottom: 16px; }
+.tab-nav button.active { background-color: var(--rangers-red); border-color: var(--rangers-red); }
