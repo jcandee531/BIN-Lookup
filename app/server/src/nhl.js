@@ -57,22 +57,50 @@ function computeFirstScorerAndCounts(feed) {
   return { firstGoal, counts };
 }
 
-function extractRangersRosterFromFeed(feed) {
-  const box = feed.liveData?.boxscore?.teams;
-  if (!box) return [];
-  const rangers = box.home?.team?.id === RANGERS_TEAM_ID ? box.home : box.away?.team?.id === RANGERS_TEAM_ID ? box.away : null;
-  const teamBox = rangers ? (box.home?.team?.id === RANGERS_TEAM_ID ? feed.liveData.boxscore.teams.home : feed.liveData.boxscore.teams.away) : null;
-  if (!teamBox) return [];
-  const players = teamBox.players || {};
-  const roster = [];
-  for (const key of Object.keys(players)) {
-    const p = players[key];
-    roster.push({ id: p.person.id, name: p.person.fullName, position: p.position?.abbreviation || '' });
+async function fetchTeamActiveRoster() {
+  const url = `https://statsapi.web.nhl.com/api/v1/teams/${RANGERS_TEAM_ID}?expand=team.roster`;
+  const { data } = await axios.get(url);
+  const team = data?.teams?.[0];
+  const roster = team?.roster?.roster || [];
+  return roster.map((r) => ({ id: r.person.id, name: r.person.fullName, position: r.position?.abbreviation || '' }));
+}
+
+function getActiveRosterFromFeed(feed) {
+  const box = feed?.liveData?.boxscore?.teams;
+  const gameTeams = feed?.gameData?.teams;
+  if (!box || !gameTeams) return null;
+  const isHomeRangers = gameTeams?.home?.id === RANGERS_TEAM_ID;
+  const teamBox = isHomeRangers ? box.home : box.away;
+  if (!teamBox) return null;
+  const scratches = new Set(teamBox.scratches || []);
+  const activeIds = [
+    ...(teamBox.skaters || []),
+    ...(teamBox.goalies || []),
+  ].filter((id) => !scratches.has(id));
+  const playersMap = teamBox.players || {};
+  const results = [];
+  for (const id of activeIds) {
+    const key = `ID${id}`;
+    const p = playersMap[key];
+    if (p?.person?.id) {
+      results.push({ id: p.person.id, name: p.person.fullName, position: p.position?.abbreviation || '' });
+    }
   }
   // Deduplicate by id
   const seen = new Set();
-  return roster.filter(p => (seen.has(p.id) ? false : (seen.add(p.id), true)));
+  return results.filter(p => (seen.has(p.id) ? false : (seen.add(p.id), true)));
 }
 
-module.exports = { fetchSeasonSchedule, fetchGameFeed, computeFirstScorerAndCounts, extractRangersRosterFromFeed, RANGERS_TEAM_ID };
+async function getActiveRosterForGame(gamePk) {
+  try {
+    const feed = await fetchGameFeed(gamePk);
+    const active = getActiveRosterFromFeed(feed);
+    if (active && active.length > 0) return active;
+  } catch (_e) {
+    // ignore, fallback below
+  }
+  return await fetchTeamActiveRoster();
+}
+
+module.exports = { fetchSeasonSchedule, fetchGameFeed, computeFirstScorerAndCounts, getActiveRosterForGame, RANGERS_TEAM_ID };
 

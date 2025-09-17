@@ -3,7 +3,7 @@ const cors = require("cors");
 const dayjs = require("dayjs");
 const { z } = require("zod");
 const db = require("./db");
-const { fetchSeasonSchedule, fetchGameFeed, computeFirstScorerAndCounts, extractRangersRosterFromFeed } = require("./nhl");
+const { fetchSeasonSchedule, fetchGameFeed, computeFirstScorerAndCounts, getActiveRosterForGame } = require("./nhl");
 
 const app = express();
 app.use(cors());
@@ -190,9 +190,8 @@ app.post('/api/games/:gameId/compute', async (req, res) => {
 app.get('/api/games/:gameId/roster', async (req, res) => {
   const gameId = Number(req.params.gameId);
   try {
-    const feed = await fetchGameFeed(gameId);
-    const roster = extractRangersRosterFromFeed(feed);
-    res.json(roster);
+    const roster = await getActiveRosterForGame(gameId);
+    res.json(roster || []);
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
